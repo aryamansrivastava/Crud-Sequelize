@@ -50,7 +50,7 @@ const signup = async (req, res) => {
       createdAt: newUser.createdAt
     };
 
-    res.status(201).json({ message: "User created successfully", user: userDetails, token });
+    res.status(201).json({ message: "User created successfully", user: userDetails });
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ message: error.message });
@@ -69,14 +69,12 @@ const login = async (req, res) => {
     }
 
     const user = await userModel.findOne({ where: { email } });
-    // console.log(user);
     if (!user) {
       return res.status(400).json({ message: "Invalid email credentials" });
     }
 
     // Validate password using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log(isPasswordValid);
     
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid password credentials" });
@@ -88,7 +86,16 @@ const login = async (req, res) => {
     // Set JWT in cookie
     res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 8 * 3600000) });
 
-    res.status(200).json({ message: "Login successful", user, token });
+    const userDetails = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      updatedAt: user.updatedAt,
+      createdAt: user.createdAt
+    };
+
+    res.status(200).json({ message: "Login successful", user: userDetails, token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: error.message });
@@ -150,7 +157,9 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-        const user = await userModel.findByPk(req.params.id);
+        const user = await userModel.findByPk(req.params.id, {
+          attributes: ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"]
+        }) ;
         if (!user) {
             return res.status(404).json({message: "User not found"});
         }

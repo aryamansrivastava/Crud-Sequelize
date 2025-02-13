@@ -9,7 +9,6 @@ const sequelize = new Sequelize('MyDatabase', 'sa', 'Aryaman@1234', {
 const dbConnection = async() => {
     try {
         await sequelize.authenticate();
-        // console.log("db connected");
     }
     catch (err) {
         console.log('Unable to connect DB', err);
