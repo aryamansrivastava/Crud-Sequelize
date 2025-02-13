@@ -22,6 +22,8 @@ const sayHello = async(req, res) => {
         response.message = err.toString();
         response.error = err.toString();
       }else{
+        response.success = true;
+        response.message = `Hello ${req.body.firstName}`;
         return data;
       }
     });
