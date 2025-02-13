@@ -1,6 +1,34 @@
 const { userModel } = require("../models/userModel");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const sayHello = async(req, res) => {
+  const response = {
+    status: 200,
+    success: false,
+    message :"OK"  
+  }
+  const token = req.headers.authorization;
+  console.log({token});
+  if(!token){
+    response.status = 400;
+    response.success = false;
+    response.message = "Token missing";
+  }else{
+    const verification = await jwt.verify(token.split("Bearer ")[1], process.env.JWT_SECRET, (err, data) => {
+      if(err){
+        response.success = false;
+        response.message = err.toString();
+        response.error = err.toString();
+      }else{
+        return data;
+      }
+    });
+    response.data = verification;
+  }
+  return res.status(response.status).json(response);
+}
 
 // Signup
 const signup = async (req, res) => {
@@ -16,8 +44,8 @@ const signup = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    if (!validator.isLength(password, { min: 6 })) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    if (!validator.isLength(password, { min: 6,max:30 })) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long and less than 30 characters long" });
     }
 
     // Check if user already exists
@@ -56,7 +84,6 @@ const signup = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // Login
 const login = async (req, res) => {
@@ -217,4 +244,4 @@ const updateUser = async(req, res) => {
       }
 };
 
-module.exports = { signup, login, logout, getUsers, createUser, getUserById, deleteUser, updateUser };
+module.exports = {sayHello,signup, login, logout, getUsers, createUser, getUserById, deleteUser, updateUser};

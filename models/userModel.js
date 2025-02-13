@@ -7,18 +7,18 @@ const userModel = sequelize.define("user", {
   firstName: {
     type: DataTypes.STRING,
     allowNull: false,
-    validate: { notEmpty: { msg: "First name is required" } },
+    validate: { notEmpty: { msg: "First name is required" }},
   },
   lastName: {
     type: DataTypes.STRING,
     allowNull: false,
-    validate: { notEmpty: { msg: "Last name is required" } },
+    validate: { notEmpty: { msg: "Last name is required" }},
   },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-    validate: { isEmail: { msg: "Invalid email format" } },
+    validate: { isEmail: { msg: "Invalid email format" }},
   },
   password: {
     type: DataTypes.STRING,
