@@ -32,25 +32,25 @@ const userModel = sequelize.define('user', {
       len: { args: [6, 30], msg: "Password must be between 6 and 30 characters" },
     },
   },
-   gender: {
-    type: DataTypes.ENUM("Male", "Female", "Other"),
-    allowNull: false,
-    validate: {
-      isIn: {
-        args: [["Male", "Female", "Other"]],
-        msg: "Gender must be 'Male', 'Female', or 'Other'",
-      },
-    },
-  },
-  age: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      isInt: { msg: "Age must be a number" },
-      min: { args: [18], msg: "Age must be at least 18" },
-      max: { args: [100], msg: "Age must be at most 100" },
-    },
-  },
+  //  gender: {
+  //   type: DataTypes.ENUM("male", "female", "other"),
+  //   allowNull: false,
+  //   validate: {
+  //     isIn: {
+  //       args: [["male", "female", "other"]],
+  //       msg: "Gender must be 'Male', 'Female', or 'Other'",
+  //     },
+  //   },
+  // },
+  // age: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   validate: {
+  //     isInt: { msg: "Age must be a number" },
+  //     min: { args: [18], msg: "Age must be at least 18" },
+  //     max: { args: [100], msg: "Age must be at most 100" },
+  //   },
+  // },
 })
 
 module.exports = {userModel};
