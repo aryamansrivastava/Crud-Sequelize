@@ -1,7 +1,11 @@
 const { sequelize } = require("./config/database");
 const express = require("express");
 const { dbConnection } = require("./config/database");
-const { router } = require("./routes/user");
+const {router} = require("./routes/user");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 const cors = require("cors");
 
 const app = express();
