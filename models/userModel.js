@@ -29,17 +29,15 @@ const userModel = sequelize.define("user", {
   },
 });
 
-// ✅ Hash password before saving user
+// Instead of UserModel.protoype i have to use some other method
 userModel.beforeCreate(async (user) => {
   user.password = await bcrypt.hash(user.password, 10);
 });
 
-// ✅ Password validation function
 userModel.prototype.validatePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// ✅ Generate JWT token function
 userModel.prototype.getJWT = function () {
   return jwt.sign({ id: this.id, email: this.email }, process.env.JWT_SECRET, {
     expiresIn: "8h",

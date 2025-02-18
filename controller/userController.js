@@ -23,7 +23,7 @@ const sayHello = async(req, res) => {
         response.error = err.toString();
       }else{
         response.success = true;
-        response.message = `Hello ${req.body.firstName}`;
+        response.message = `Hello ${req.body.firstName} ${req.body.lastName}`;
         return data;
       }
     });
@@ -32,12 +32,10 @@ const sayHello = async(req, res) => {
   return res.status(response.status).json(response);
 }
 
-// Signup
 const signup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // Validate inputs
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -50,16 +48,13 @@ const signup = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long and less than 30 characters long" });
     }
 
-    // Check if user already exists
     const existingUser = await userModel.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User already exists" });
     }
 
-    // Create user
     const newUser = await userModel.create({ firstName, lastName, email, password });
 
-    // Generate JWT token
     let token;
     try {
       token = newUser.getJWT();
@@ -68,7 +63,6 @@ const signup = async (req, res) => {
       return res.status(500).json({ message: "JWT_SECRET is missing or invalid" });
     }
 
-    // Set JWT in cookie
     res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 8 * 3600000) });
 
     const userDetails = {
@@ -87,12 +81,10 @@ const signup = async (req, res) => {
   }
 };
 
-// Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Validate inputs
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
@@ -102,17 +94,14 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email credentials" });
     }
 
-    // Validate password using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid password credentials" });
     }
 
-    // Generate JWT token
     const token = user.getJWT();
 
-    // Set JWT in cookie
     res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 8 * 3600000) });
 
     const userDetails = {
@@ -131,18 +120,15 @@ const login = async (req, res) => {
   }
 };
 
-// Logout
 const logout = (req, res) => {
   res.cookie("token", "", { expires: new Date(0) });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// Create a new user
 const createUser = async (req, res) => {
   try {
       const { firstName, lastName, email, password} = req.body;
 
-      // Validation checks
       if (!firstName || !lastName || !email || !password) {
           return res.status(400).json({ message: "All fields are required" });
       }
@@ -171,7 +157,6 @@ const createUser = async (req, res) => {
       res.status(500).json({ message: error.message });
   }
 };
-
 
 const getUsers = async (req, res) => {
     try {
@@ -212,12 +197,10 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// update user by Id
 const updateUser = async(req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
     
-        // Validate input
         if (!firstName || !lastName || !email) {
           return res.status(400).json({ message: "First name, last name, and email are required" });
         }

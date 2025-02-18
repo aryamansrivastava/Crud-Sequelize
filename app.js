@@ -1,16 +1,13 @@
-const { sequelize } = require("./config/database");
 const express = require("express");
-const { dbConnection } = require("./config/database");
+const { sequelize, dbConnection } = require("./config/database");
 const {router} = require("./routes/user");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
-const cors = require("cors");
-
 const app = express();
 
-// Enable CORS with specific settings
 app.use(
   cors({
     origin: "http://localhost:5173", 
@@ -19,13 +16,10 @@ app.use(
   })
 );
 
-// Parse JSON requests
 app.use(express.json());
 
-// Use routes
 app.use("/", router);
 
-// Start the server
 app.listen(4000, async () => {
   console.log("Server is listening at port 4000");
 
