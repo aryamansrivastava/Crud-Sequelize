@@ -159,14 +159,30 @@ const createUser = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-    try {
-        const users = await userModel.findAll({
-          attributes: ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"]
-        });
-        res.status(200).json({ data: users });
-    } catch (err) {
-        res.status(500).json({message: "Error fetching users", error: err.message});
-    }
+  try {
+      let { page, limit } = req.query;
+
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+
+      const offset = (page - 1) * limit; 
+
+      const { count, rows: users } = await userModel.findAndCountAll({
+          attributes: ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"],
+          offset,
+          limit,
+          order: [["createdAt", "DESC"]], 
+      });
+
+      res.status(200).json({
+          data: users,
+          totalUsers: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+      });
+  } catch (err) {
+      res.status(500).json({ message: "Error fetching users", error: err.message });
+  }
 };
 
 const getUserById = async (req, res) => {
