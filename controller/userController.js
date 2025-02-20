@@ -102,7 +102,6 @@ const login = async (req, res) => {
 
     const token = user.getJWT();
 
-    console.log(req.session);
     req.session.user = {
       id: user.id,
       firstName: user.firstName,
