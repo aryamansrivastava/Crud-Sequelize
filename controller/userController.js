@@ -102,6 +102,16 @@ const login = async (req, res) => {
 
     const token = user.getJWT();
 
+    console.log(req.session);
+    req.session.user = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      token
+    };
+    console.log(req.session);
+
     res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 8 * 3600000) });
 
     const userDetails = {
@@ -113,7 +123,7 @@ const login = async (req, res) => {
       createdAt: user.createdAt
     };
 
-    res.status(200).json({ message: "Login successful", user: userDetails, token });
+    res.status(200).json({ message: "Login successful", user: req.session.user, token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: error.message });
@@ -121,8 +131,14 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.cookie("token", "", { expires: new Date(0) });
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ message: "Logout failed" });
+    }
+  res.clearCookie("token");
   res.status(200).json({ message: "Logged out successfully" });
+  });
 };
 
 const createUser = async (req, res) => {
@@ -141,14 +157,6 @@ const createUser = async (req, res) => {
           return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
 
-    //   if (!["male", "female", "other"].includes(gender.toLowerCase())) {
-    //       return res.status(400).json({ message: "Gender must be Male, Female, or Other" });
-    //   }
-
-    //   if (isNaN(age) || age < 18 || age > 100) {
-    //       return res.status(400).json({ message: "Age must be a number between 18 and 100" });
-    //   }
-
       const newUser = await userModel.create({ firstName, lastName, email, password});
       res.status(201).json({ message: "User created successfully", user: newUser });
 
@@ -160,10 +168,11 @@ const createUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-      let { page, limit } = req.query;
+
+      let { page, size } = req.query;
 
       page = parseInt(page) || 1;
-      limit = parseInt(limit) || 10;
+      const limit = parseInt(size) || 6;
 
       const offset = (page - 1) * limit; 
 
@@ -171,7 +180,7 @@ const getUsers = async (req, res) => {
           attributes: ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"],
           offset,
           limit,
-          order: [["createdAt", "DESC"]], 
+          order: [["createdAt", "DESC"]],
       });
 
       res.status(200).json({
@@ -181,6 +190,7 @@ const getUsers = async (req, res) => {
           currentPage: page,
       });
   } catch (err) {
+    console.error(err);
       res.status(500).json({ message: "Error fetching users", error: err.message });
   }
 };

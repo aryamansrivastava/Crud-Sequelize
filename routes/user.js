@@ -1,5 +1,7 @@
 const express = require('express');
 const userController = require('../controller/userController');
+const {isAuthenticated} = require("../middlewares/auth");
+const { apiLimiter } = require('../middlewares/rateLimit');
 
 const router = express.Router();
 
@@ -13,7 +15,7 @@ router.post('/create', userController.createUser);
 
 router.get('/getuser/:id', userController.getUserById );
 
-router.get('/getallusers', userController.getUsers);
+router.get('/getallusers', [isAuthenticated, apiLimiter, userController.getUsers]);
 
 router.delete("/delete/:id", userController.deleteUser);
 
