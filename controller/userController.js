@@ -3,7 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const sayHello = async(req, res) => {
+const sayHello = async(req, res) => { 
   const response = {
     status: 200,
     success: false,
